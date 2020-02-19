@@ -10,58 +10,68 @@ const MIN_CIRCLE_DIAMETER = 300;
 const MAX_CIRCLE_DIAMETER = 400;
 const BODY_PADDING = 20;
 
+const circlesData = [];
+
 const getRandomInteger = (min, max) =>
   Math.floor(Math.random() * (max - min) + min);
 
-const createCircleData = name => {
-  const circlesData = [];
+const createCirclesData = () =>
+  CIRCLES_NAMES.forEach((name, index) => {
+    const isAccidentWithAnotherCircle = (x, y, diameter) => {
+      if (circlesData.length === 0) return false;
 
-  const isAccidentWithAnotherCircle = (x, y, diameter) => {
-    if (circlesData.length === 0) return true;
+      circlesData.some(circleData => {
+        console.log("circleData: ", circleData);
 
-    circlesData.some(circleData => {
-      return (
-        x <= circleData.x + circleData.diameter &&
-        x + diameter >= circleData.x &&
-        y <= circleData.y + circleData.diameter &&
-        y + diameter >= circleData.y
-      );
-    });
-  };
-
-  const getCircleCoordinates = diameter => {
-    const position = {
-      x: 0,
-      y: 0
+        return (
+          x <= circleData.x + circleData.diameter &&
+          x + diameter >= circleData.x &&
+          y <= circleData.y + circleData.diameter &&
+          y + diameter >= circleData.y
+        );
+      });
     };
 
-    let indicator = false;
+    const getCircleCoordinates = diameter => {
+      const position = {
+        x: 0,
+        y: 0
+      };
 
-    while (!indicator) {
-      position.x = getRandomInteger(
-        BODY_PADDING,
-        document.body.clientWidth - BODY_PADDING - diameter
-      );
+      let indicator = false;
+      let i = 0;
+      while (!indicator) {
+        position.x = getRandomInteger(
+          BODY_PADDING,
+          document.documentElement.clientWidth - BODY_PADDING - diameter
+        );
 
-      position.y = getRandomInteger(
-        BODY_PADDING,
-        document.body.clientHeight - BODY_PADDING - diameter
-      );
+        position.y = getRandomInteger(
+          BODY_PADDING,
+          document.documentElement.clientHeight - BODY_PADDING - diameter
+        );
 
-      indicator = isAccidentWithAnotherCircle(position.x, position.y, diameter);
-    }
+        indicator = isAccidentWithAnotherCircle(
+          position.x,
+          position.y,
+          diameter
+        );
 
-    return position;
-  };
+        i++;
+      }
 
-  const diameter = getRandomInteger(MIN_CIRCLE_DIAMETER, MAX_CIRCLE_DIAMETER);
+      return position;
+    };
 
-  return {
-    name,
-    diameter,
-    ...getCircleCoordinates(diameter)
-  };
-};
+    const diameter = getRandomInteger(MIN_CIRCLE_DIAMETER, MAX_CIRCLE_DIAMETER);
+
+    circlesData.push({
+      name,
+      diameter,
+      color: CIRCLES_COLORS[index],
+      ...getCircleCoordinates(diameter)
+    });
+  });
 
 const renderSingleCircle = ({ name, x, y, diameter, color }) => {
   const circleElement = document.createElement("div");
@@ -73,9 +83,10 @@ const renderSingleCircle = ({ name, x, y, diameter, color }) => {
   circleElement.style.height = `${diameter}px`;
   circleElement.style.left = `${x}px`;
   circleElement.style.top = `${y}px`;
+  circleElement.style.backgroundColor = color;
 
   return circleElement;
 };
 
-const circlesData = CIRCLES_NAMES.map(createCircleData);
+createCirclesData();
 document.body.append(...circlesData.map(data => renderSingleCircle(data)));
