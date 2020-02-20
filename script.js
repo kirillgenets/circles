@@ -20,9 +20,7 @@ const createCirclesData = () =>
     const isAccidentWithAnotherCircle = (x, y, diameter) => {
       if (circlesData.length === 0) return false;
 
-      circlesData.some(circleData => {
-        console.log("circleData: ", circleData);
-
+      return circlesData.some(circleData => {
         return (
           x <= circleData.x + circleData.diameter &&
           x + diameter >= circleData.x &&
@@ -34,13 +32,17 @@ const createCirclesData = () =>
 
     const getCircleCoordinates = diameter => {
       const position = {
-        x: 0,
-        y: 0
+        x: getRandomInteger(
+          BODY_PADDING,
+          document.documentElement.clientWidth - BODY_PADDING - diameter
+        ),
+        y: getRandomInteger(
+          BODY_PADDING,
+          document.documentElement.clientHeight - BODY_PADDING - diameter
+        )
       };
 
-      let indicator = false;
-      let i = 0;
-      while (!indicator) {
+      while (isAccidentWithAnotherCircle(position.x, position.y, diameter)) {
         position.x = getRandomInteger(
           BODY_PADDING,
           document.documentElement.clientWidth - BODY_PADDING - diameter
@@ -50,14 +52,6 @@ const createCirclesData = () =>
           BODY_PADDING,
           document.documentElement.clientHeight - BODY_PADDING - diameter
         );
-
-        indicator = isAccidentWithAnotherCircle(
-          position.x,
-          position.y,
-          diameter
-        );
-
-        i++;
       }
 
       return position;
